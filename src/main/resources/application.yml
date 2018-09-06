@@ -14,7 +14,7 @@ spring:
       host: 10.0.4.74
       port: 6379
       password: redistest
-      database: 10
+      database: 0
 
   cloud:
     gateway:
