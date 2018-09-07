@@ -1,0 +1,52 @@
+server:
+  port: 9003
+
+spring:
+  application:
+    name: common-gateway
+
+
+  redis:
+      host: 10.0.4.74
+      port: 6379
+      password: redistest
+      database: 0
+
+  cloud:
+    # zookeeper注册中心地址
+    zookeeper:
+      connect-string: 10.0.4.49:2181
+
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+      default-filters:
+        - Elapsed=true
+      routes:
+        - id: fee-config
+          uri: lb://fee-config-center
+          order: 10000
+          predicates:
+            - Path=/fee-config/**
+          filters:
+            - StripPrefix=1
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                fallbackUri: forward:/hystrixFallBack
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@remoteAddrKeyResolver}"
+                #令牌桶容量
+                redis-rate-limiter.replenishRate: 10
+                #令牌桶每秒填充平均速率
+                redis-rate-limiter.burstCapacity: 5
+
+
+hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds: 10000
+
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
