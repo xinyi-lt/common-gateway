@@ -11,6 +11,8 @@ spring:
       port: 6379
       password: redistest
       database: 0
+      timeout: 0
+      expire: 2000
 
   cloud:
     # zookeeper注册中心地址
